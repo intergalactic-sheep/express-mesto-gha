@@ -25,7 +25,7 @@ module.exports.getUserById = async (req, res) => {
     return res.send(user);
   } catch (err) {
     if (err.name === 'CastError' && err.path === '_id') {
-      statusCode = 404;
+      statusCode = 400;
       errorMessage = 'Пользователь с указанным ID не найден';
     }
 

@@ -1,16 +1,16 @@
-const Card = require("../models/card");
+const Card = require('../models/card');
 
 let statusCode = 500;
-let errorMessage = "Ошибка на стороне сервера";
+let errorMessage = 'Ошибка на стороне сервера';
 
 module.exports.getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
     return res.send(cards);
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       statusCode = 400;
-      errorMessage = "Переданы некорректные данные";
+      errorMessage = 'Переданы некорректные данные';
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -23,9 +23,9 @@ module.exports.createCard = async (req, res) => {
     newCard.owner = req.user._id;
     return res.status(201).send(await newCard.save());
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       statusCode = 400;
-      errorMessage = "Переданы некорректные данные";
+      errorMessage = 'Переданы некорректные данные';
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -37,9 +37,9 @@ module.exports.deleteCard = async (req, res) => {
     const cardToDelete = await Card.findByIdAndRemove(req.params.id);
     return res.status(200).send(cardToDelete);
   } catch (err) {
-    if (err.name === "CastError" && err.path === "_id") {
+    if (err.name === 'CastError' && err.path === '_id') {
       statusCode = 404;
-      errorMessage = "Карточка с указанным ID не найден";
+      errorMessage = 'Карточка с указанным ID не найден';
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -48,20 +48,20 @@ module.exports.deleteCard = async (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   try {
-    const likeMethod = req.method === "PUT" ? "$addToSet" : "$pull";
+    const likeMethod = req.method === 'PUT' ? '$addToSet' : '$pull';
     const likedCard = Card.findByIdAndUpdate(
       req.params.cardId,
       { [likeMethod]: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     return res.status(200).send(likedCard);
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       statusCode = 400;
-      errorMessage = "Переданы некорректные данные";
-    } else if (err.name === "CastError" && err.path === "_id") {
+      errorMessage = 'Переданы некорректные данные';
+    } else if (err.name === 'CastError' && err.path === '_id') {
       statusCode = 404;
-      errorMessage = "Карточка с указанным ID не найден";
+      errorMessage = 'Карточка с указанным ID не найден';
     }
 
     return res.status(statusCode).send({ message: errorMessage });

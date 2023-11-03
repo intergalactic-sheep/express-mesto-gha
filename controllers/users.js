@@ -24,12 +24,9 @@ module.exports.getUserById = async (req, res) => {
     );
     return res.send(user);
   } catch (err) {
-    if (err.name === "ValidationError") {
-      statusCode = 400;
-      errorMessage = "Переданы некорректные данные";
-    } else if (err.name === "CastError" && err.path === "_id") {
+    if (err.name === "CastError" && err.path === "_id") {
       statusCode = 404;
-      errorMessage = "Пользователь не найден";
+      errorMessage = "Пользователь с указанным ID не найден";
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -67,6 +64,9 @@ module.exports.updateUser = async (req, res) => {
     if (err.name === "ValidationError") {
       statusCode = 400;
       errorMessage = "Переданы некорректные данные";
+    } else if (err.name === "CastError" && err.path === "_id") {
+      statusCode = 404;
+      errorMessage = "Пользователь с указанным ID не найден";
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -89,6 +89,9 @@ module.exports.updateUserAvatar = async (req, res) => {
     if (err.name === "ValidationError") {
       statusCode = 400;
       errorMessage = "Переданы некорректные данные";
+    } else if (err.name === "CastError" && err.path === "_id") {
+      statusCode = 404;
+      errorMessage = "Пользователь с указанным ID не найден";
     }
 
     return res.status(statusCode).send({ message: errorMessage });

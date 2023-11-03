@@ -37,9 +37,9 @@ module.exports.deleteCard = async (req, res) => {
     const cardToDelete = await Card.findByIdAndRemove(req.params.id);
     return res.status(200).send(cardToDelete);
   } catch (err) {
-    if (err.name === "ValidationError") {
-      statusCode = 400;
-      errorMessage = "Переданы некорректные данные";
+    if (err.name === "CastError" && err.path === "_id") {
+      statusCode = 404;
+      errorMessage = "Карточка с указанным ID не найден";
     }
 
     return res.status(statusCode).send({ message: errorMessage });
@@ -59,6 +59,9 @@ module.exports.likeCard = (req, res) => {
     if (err.name === "ValidationError") {
       statusCode = 400;
       errorMessage = "Переданы некорректные данные";
+    } else if (err.name === "CastError" && err.path === "_id") {
+      statusCode = 404;
+      errorMessage = "Карточка с указанным ID не найден";
     }
 
     return res.status(statusCode).send({ message: errorMessage });

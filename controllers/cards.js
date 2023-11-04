@@ -1,16 +1,13 @@
 const Card = require('../models/card');
+const { ERROR_CODE } = require('../utils/constants');
 
-let statusCode = 500;
+let statusCode = ERROR_CODE.SERVER_ERROR;
 let errorMessage = 'Ошибка на стороне сервера';
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        statusCode = 400;
-        errorMessage = 'Переданы некорректные данные';
-      }
+    .catch(() => {
       res.status(statusCode).send({ message: errorMessage });
     });
 };
@@ -20,10 +17,10 @@ module.exports.createCard = (req, res) => {
   newCard.owner = req.user._id;
   newCard
     .save()
-    .then((createdCard) => res.status(201).send(createdCard))
+    .then((createdCard) => res.status(ERROR_CODE.CREATED).send(createdCard))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        statusCode = 400;
+        statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Переданы некорректные данные';
       }
       res.status(statusCode).send({ message: errorMessage });
@@ -34,16 +31,16 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((cardToDelete) => {
       if (!cardToDelete) {
-        statusCode = 404;
+        statusCode = ERROR_CODE.NOT_FOUND;
         errorMessage = 'Карточка с указанным ID не найдена';
         res.status(statusCode).send({ message: errorMessage });
       } else {
-        res.status(200).send(cardToDelete);
+        res.status(ERROR_CODE.OK).send(cardToDelete);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError' && err.path === '_id') {
-        statusCode = 400;
+        statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Карточка с указанным ID не найдена';
       }
       res.status(statusCode).send({ message: errorMessage });
@@ -59,20 +56,17 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        statusCode = 404;
+        statusCode = ERROR_CODE.NOT_FOUND;
         errorMessage = 'Карточка с указанным ID не найдена';
         res.status(statusCode).send({ message: errorMessage });
       } else {
-        res.status(200).send(card);
+        res.status(ERROR_CODE.OK).send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        statusCode = 400;
+        statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Переданы некорректные данные';
-      } else if (err.name === 'CastError' && err.path === '_id') {
-        statusCode = 400;
-        errorMessage = 'Карточка с указанным ID не найдена';
       }
       res.status(statusCode).send({ message: errorMessage });
     });

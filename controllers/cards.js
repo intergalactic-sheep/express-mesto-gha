@@ -64,7 +64,7 @@ module.exports.likeCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Переданы некорректные данные';
       }

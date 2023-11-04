@@ -39,7 +39,7 @@ module.exports.createUser = (req, res) => {
     .save()
     .then((createdUser) => res.status(ERROR_CODE.CREATED).send(createdUser))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Переданы некорректные данные';
       }
@@ -65,7 +65,7 @@ module.exports.updateUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         statusCode = ERROR_CODE.BAD_REQUEST;
         errorMessage = 'Переданы некорректные данные';
       }

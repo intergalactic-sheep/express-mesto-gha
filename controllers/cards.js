@@ -57,13 +57,13 @@ module.exports.likeCard = (req, res) => {
     { [likeMethod]: { likes: req.user._id } },
     { new: true },
   )
-    .then((likedCard) => {
-      if (!likedCard) {
+    .then((card) => {
+      if (!card) {
         statusCode = 404;
         errorMessage = 'Карточка с указанным ID не найдена';
         res.status(statusCode).send({ message: errorMessage });
       } else {
-        res.status(200).send(likedCard);
+        res.status(200).send(card);
       }
     })
     .catch((err) => {
@@ -71,7 +71,7 @@ module.exports.likeCard = (req, res) => {
         statusCode = 400;
         errorMessage = 'Переданы некорректные данные';
       } else if (err.name === 'CastError' && err.path === '_id') {
-        statusCode = 404;
+        statusCode = 400;
         errorMessage = 'Карточка с указанным ID не найдена';
       }
       res.status(statusCode).send({ message: errorMessage });

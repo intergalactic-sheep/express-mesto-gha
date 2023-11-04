@@ -30,7 +30,7 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' && err.path === '_id') {
-        statusCode = 404;
+        statusCode = 400;
         errorMessage = 'Пользователь с указанным ID не найден';
       }
       res.status(statusCode).send({ message: errorMessage });
@@ -57,7 +57,7 @@ module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { name, about },
-    { new: true, runValidators: true },
+    { new: true },
   )
     .then((user) => res.send({ user }))
     .catch((err) => {
@@ -73,14 +73,14 @@ module.exports.updateUser = (req, res) => {
 };
 
 module.exports.updateUserAvatar = (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     userId,
     { avatar },
     { new: true },
   )
-    .then((updatedUser) => res.status(200).send(updatedUser))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         statusCode = 400;

@@ -57,7 +57,7 @@ module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { name, about },
-    { new: true },
+    { new: true, runValidators: true },
   )
     .then((user) => res.send({ user }))
     .catch((err) => {
@@ -78,7 +78,7 @@ module.exports.updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { avatar },
-    { new: true },
+    { new: true, runValidators: true },
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {

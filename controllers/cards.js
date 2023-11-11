@@ -1,53 +1,54 @@
+const { ValidationError, CastError } = require('mongoose').Error;
 const Card = require('../models/card');
 const { ERROR_CODE } = require('../utils/constants');
+const {
+  InaccurateDataError,
+  NotFoundError,
+  NoPermissionError,
+} = require('../errors/errors');
 
-let statusCode = ERROR_CODE.SERVER_ERROR;
-let errorMessage = 'Ошибка на стороне сервера';
-
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => {
-      res.status(statusCode).send({ message: errorMessage });
-    });
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const newCard = new Card(req.body);
   newCard.owner = req.user._id;
   newCard
     .save()
     .then((createdCard) => res.status(ERROR_CODE.CREATED).send(createdCard))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        statusCode = ERROR_CODE.BAD_REQUEST;
-        errorMessage = 'Переданы некорректные данные';
+      if (err instanceof ValidationError) {
+        return next(new InaccurateDataError('Переданы некорректные данные'));
       }
-      res.status(statusCode).send({ message: errorMessage });
+      return next(err);
     });
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .then((cardToDelete) => {
       if (!cardToDelete) {
-        statusCode = ERROR_CODE.NOT_FOUND;
-        errorMessage = 'Карточка с указанным ID не найдена';
-        res.status(statusCode).send({ message: errorMessage });
-      } else {
-        res.status(ERROR_CODE.OK).send(cardToDelete);
+        throw new NotFoundError('Карточка не найдена');
       }
+      if (cardToDelete.owner.toString() !== req.user._id.toString()) {
+        throw new NoPermissionError('У вас нет прав на удаление чужой карточки');
+      }
+      return cardToDelete.deleteOne();
     })
+    .then(() => res.status(ERROR_CODE.OK).send({ message: 'Карточка была удалена' }))
     .catch((err) => {
-      if (err.name === 'CastError' && err.path === '_id') {
-        statusCode = ERROR_CODE.BAD_REQUEST;
-        errorMessage = 'Карточка с указанным ID не найдена';
+      if (err instanceof CastError) {
+        return next(new InaccurateDataError('Переданы некорректные данные'));
       }
-      res.status(statusCode).send({ message: errorMessage });
+
+      return next(err);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const likeMethod = req.method === 'PUT' ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -56,18 +57,14 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        statusCode = ERROR_CODE.NOT_FOUND;
-        errorMessage = 'Карточка с указанным ID не найдена';
-        res.status(statusCode).send({ message: errorMessage });
-      } else {
-        res.status(ERROR_CODE.OK).send(card);
+        throw new NotFoundError('Карточка не была найдена');
       }
+      return res.status(ERROR_CODE.OK).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        statusCode = ERROR_CODE.BAD_REQUEST;
-        errorMessage = 'Переданы некорректные данные';
+      if (err instanceof CastError) {
+        return next(new InaccurateDataError('Переданы некорректные данные'));
       }
-      res.status(statusCode).send({ message: errorMessage });
+      return next(err);
     });
 };

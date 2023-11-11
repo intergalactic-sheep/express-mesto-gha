@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
-const isUrl = (value, helpers) => (validator.isUrl(value) ? value : helpers.message('Некорректная ссылка'));
+const isUrl = (value, helpers) => (validator.isURL(value) ? value : helpers.message('Некорректная ссылка'));
 
 module.exports.signinValidation = celebrate({
   body: Joi.object().keys({

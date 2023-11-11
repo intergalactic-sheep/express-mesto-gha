@@ -6,7 +6,7 @@ const {
   NotFoundError,
   InaccurateDataError,
   ConflictError,
-} = require('../errors/NotFoundError');
+} = require('../errors/errors');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -43,7 +43,12 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => res.send(user))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err instanceof ValidationError) {
         return next(new InaccurateDataError('Переданы некорректные данные'));

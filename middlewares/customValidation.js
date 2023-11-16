@@ -21,8 +21,8 @@ module.exports.signupValidation = celebrate({
 });
 
 module.exports.userIdValidation = celebrate({
-  body: Joi.object().keys({
-    userId: Joi.string().hex().required().length(24),
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().required().length(24),
   }),
 });
 
@@ -47,7 +47,7 @@ module.exports.cardValidation = celebrate({
 });
 
 module.exports.cardIdValidation = celebrate({
-  body: Joi.object().keys({
+  params: Joi.object().keys({
     cardId: Joi.string().hex().required().length(24),
   }),
 });

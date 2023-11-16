@@ -22,7 +22,7 @@ module.exports.signupValidation = celebrate({
 
 module.exports.userIdValidation = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().required().length(24),
+    id: Joi.string().hex().required().length(24),
   }),
 });
 

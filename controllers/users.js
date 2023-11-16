@@ -7,6 +7,7 @@ const {
   InaccurateDataError,
   ConflictError,
 } = require('../errors/errors');
+const { ERROR_CODE } = require('../utils/constants');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -42,7 +43,7 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => res.send({
+    .then((user) => res.status(ERROR_CODE.CREATED).send({
       name: user.name,
       about: user.about,
       avatar: user.avatar,

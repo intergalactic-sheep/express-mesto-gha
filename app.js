@@ -9,6 +9,7 @@ const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { signinValidation, signupValidation } = require('./middlewares/customValidation');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -19,10 +20,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
+app.use(requestLogger);
+
 app.post('/signup', signupValidation, createUser);
 app.post('/signin', signinValidation, login);
-
 app.use(auth, router);
+
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cors = require('cors');
 const { errors } = require('celebrate');
 
 const router = require('./routes/index');
@@ -11,17 +12,20 @@ const { login, createUser } = require('./controllers/users');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { signinValidation, signupValidation } = require('./middlewares/customValidation');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const resolveCORS = require('./middlewares/resolveCORS');
 
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
 app.use(requestLogger);
+app.use(resolveCORS);
 
 app.get('/crash-test', () => {
   setTimeout(() => {

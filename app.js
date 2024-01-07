@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
 app.use(requestLogger);
-app.use(resolveCORS());
+app.use(resolveCORS);
 
 app.get('/crash-test', () => {
   setTimeout(() => {

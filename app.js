@@ -1,5 +1,4 @@
 require('dotenv').config();
-const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -12,13 +11,14 @@ const { login, createUser } = require('./controllers/users');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { signinValidation, signupValidation } = require('./middlewares/customValidation');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const resolveCORS = require('./middlewares/resolveCORS');
 
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 const app = express();
 
-app.use(cors());
+app.use(resolveCORS());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
